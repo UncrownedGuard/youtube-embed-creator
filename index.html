@@ -14,7 +14,7 @@
     }
 
     .container {
-      max-width: 720px;
+      max-width: 1080px;
       margin: 0 auto;
       text-align: center;
     }
@@ -24,11 +24,18 @@
       margin-bottom: 20px;
     }
 
+    .tool-layout {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
     .embed-form {
+      flex: 1 1 340px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 20px;
       text-align: left;
     }
 
@@ -76,10 +83,13 @@
       border: 1px solid #3d85c6;
       padding: 10px;
       border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .embed-code {
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .embed-code textarea {
@@ -87,7 +97,15 @@
     }
 
     .video-preview {
+      flex: 1 1 340px;
       margin-top: 20px;
+    }
+
+    .video-preview iframe {
+      width: 100%;
+      height: 315px;
+      border: none;
+      border-radius: 10px;
     }
 
     @media (prefers-color-scheme: light) {
@@ -129,46 +147,49 @@
 <body>
   <div class="container">
     <h1>YouTube Embed Generator</h1>
-    <form class="embed-form" id="embedForm">
-      <label for="youtubeURL">YouTube Video URL:</label>
-      <input type="text" id="youtubeURL" required />
 
-      <label for="width">Width (e.g., 560 or 100%):</label>
-      <input type="text" id="width" value="560" />
+    <div class="tool-layout">
+      <form class="embed-form" id="embedForm">
+        <label for="youtubeURL">YouTube Video URL:</label>
+        <input type="text" id="youtubeURL" required />
 
-      <label for="height">Height (e.g., 315 or 50%):</label>
-      <input type="text" id="height" value="315" />
+        <label for="width">Width (e.g., 560 or 100%):</label>
+        <input type="text" id="width" value="560" />
 
-      <div class="checkbox-row">
-        <div class="checkbox-container">
-          <input type="checkbox" id="autoplay" />
-          <label for="autoplay">Autoplay</label>
+        <label for="height">Height (e.g., 315 or 50%):</label>
+        <input type="text" id="height" value="315" />
+
+        <div class="checkbox-row">
+          <div class="checkbox-container">
+            <input type="checkbox" id="autoplay" />
+            <label for="autoplay">Autoplay</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="mute" />
+            <label for="mute">Mute</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="cc" />
+            <label for="cc">Closed Captions</label>
+          </div>
         </div>
-        <div class="checkbox-container">
-          <input type="checkbox" id="mute" />
-          <label for="mute">Mute</label>
+
+        <label for="startTime">Start Time (in seconds):</label>
+        <input type="number" id="startTime" min="0" value="0" />
+
+        <input type="submit" value="Generate Embed Code" />
+
+        <div class="embed-code" id="outputSection" style="display: none;">
+          <h2>Embed Code:</h2>
+          <textarea id="embedCodeArea" readonly></textarea>
+          <button onclick="copyEmbedCode()">Copy Embed Code</button>
         </div>
-        <div class="checkbox-container">
-          <input type="checkbox" id="cc" />
-          <label for="cc">Closed Captions</label>
-        </div>
+      </form>
+
+      <div class="video-preview" id="videoPreview" style="display: none;">
+        <h3>Video Preview:</h3>
+        <div id="previewFrame"></div>
       </div>
-
-      <label for="startTime">Start Time (in seconds):</label>
-      <input type="number" id="startTime" min="0" value="0" />
-
-      <input type="submit" value="Generate Embed Code" />
-    </form>
-
-    <div class="embed-code" id="outputSection" style="display: none;">
-      <h2>Embed Code:</h2>
-      <textarea id="embedCodeArea" readonly></textarea>
-      <button onclick="copyEmbedCode()">Copy Embed Code</button>
-    </div>
-
-    <div class="video-preview" id="videoPreview" style="display: none;">
-      <h3>Video Preview:</h3>
-      <div id="previewFrame"></div>
     </div>
   </div>
 
