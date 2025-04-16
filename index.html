@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Embed Code Generator</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #dae6f3;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      color: #353c41;
+      margin-bottom: 20px;
+    }
+
+    .embed-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #0b5394;
+      background-color: #353c41;
+      color: #dae6f3;
+      border-radius: 5px;
+    }
+
+    input[type="submit"],
+    button {
+      background-color: #0b5394;
+      color: #dae6f3;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover,
+    button:hover {
+      background-color: #3d85c6;
+      color: #1e1e1e;
+    }
+
+    .checkbox-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .checkbox-container {
+      background: #2b2b2b;
+      border: 1px solid #3d85c6;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .embed-code {
+      margin-top: 20px;
+    }
+
+    .embed-code textarea {
+      height: 100px;
+    }
+
+    .video-preview {
+      margin-top: 20px;
+    }
+
+    @media (prefers-color-scheme: light) {
+      body {
+        background-color: #ffffff;
+        color: #353c41;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      textarea {
+        background-color: #dae6f3;
+        color: #353c41;
+        border: 1px solid #3d85c6;
+      }
+
+      input[type="submit"],
+      button {
+        background-color: #0b5394;
+        color: #ffffff;
+      }
+
+      input[type="submit"]:hover,
+      button:hover {
+        background-color: #3d85c6;
+        color: #1e1e1e;
+      }
+
+      .checkbox-container {
+        background: #f0f0f0;
+      }
+
+      h1 {
+        color: #0b5394;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>YouTube Embed Generator</h1>
+    <form class="embed-form" id="embedForm">
+      <label for="youtubeURL">YouTube Video URL:</label>
+      <input type="text" id="youtubeURL" required />
+
+      <label for="width">Width (e.g., 560 or 100%):</label>
+      <input type="text" id="width" value="560" />
+
+      <label for="height">Height (e.g., 315 or 50%):</label>
+      <input type="text" id="height" value="315" />
+
+      <div class="checkbox-row">
+        <div class="checkbox-container">
+          <input type="checkbox" id="autoplay" />
+          <label for="autoplay">Autoplay</label>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="mute" />
+          <label for="mute">Mute</label>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="cc" />
+          <label for="cc">Closed Captions</label>
+        </div>
+      </div>
+
+      <label for="startTime">Start Time (in seconds):</label>
+      <input type="number" id="startTime" min="0" value="0" />
+
+      <input type="submit" value="Generate Embed Code" />
+    </form>
+
+    <div class="embed-code" id="outputSection" style="display: none;">
+      <h2>Embed Code:</h2>
+      <textarea id="embedCodeArea" readonly></textarea>
+      <button onclick="copyEmbedCode()">Copy Embed Code</button>
+    </div>
+
+    <div class="video-preview" id="videoPreview" style="display: none;">
+      <h3>Video Preview:</h3>
+      <div id="previewFrame"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('embedForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const url = document.getElementById('youtubeURL').value.trim();
+      const width = document.getElementById('width').value.trim() || '560';
+      const height = document.getElementById('height').value.trim() || '315';
+      const autoplay = document.getElementById('autoplay').checked ? '1' : '0';
+      const mute = document.getElementById('mute').checked ? '1' : '0';
+      const cc = document.getElementById('cc').checked ? '1' : '0';
+      const startTime = parseInt(document.getElementById('startTime').value.trim()) || 0;
+
+      const videoId = extractVideoID(url);
+      if (!videoId) {
+        alert("Please enter a valid YouTube URL.");
+        return;
+      }
+
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?start=${startTime}&autoplay=${autoplay}&mute=${mute}&cc_load_policy=${cc}`;
+      const embedCode = `<iframe width="${width}" height="${height}" src="${embedUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+
+      document.getElementById('embedCodeArea').value = embedCode;
+      document.getElementById('previewFrame').innerHTML = embedCode;
+
+      document.getElementById('outputSection').style.display = 'block';
+      document.getElementById('videoPreview').style.display = 'block';
+    });
+
+    function extractVideoID(url) {
+      try {
+        const cleanUrl = url.split('?')[0];
+        if (cleanUrl.includes('youtu.be/')) {
+          return cleanUrl.split('youtu.be/')[1];
+        }
+        const urlObj = new URL(url);
+        return urlObj.searchParams.get('v');
+      } catch {
+        return null;
+      }
+    }
+
+    function copyEmbedCode() {
+      const copyText = document.getElementById("embedCodeArea");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // For mobile
+      document.execCommand("copy");
+    }
+  </script>
+</body>
+</html>
